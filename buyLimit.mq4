@@ -46,7 +46,7 @@ int start(){
     lots = maxLot;
   }
    
-  int ticket = OrderSend(Symbol(),OP_BUYLIMIT,lots,buyPrice,1,stoploss,buyPrice + tp,"Buy_risk",1,0,Green);
+  int ticket = OrderSend(Symbol(),OP_BUYLIMIT,lots,buyPrice,1,stoploss,buyPrice + tp,"Buy_risk",1,0);
   if(ticket<0)
   {
     Print("OrderSend failed with error #",GetLastError());
