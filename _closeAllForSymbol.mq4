@@ -1,3 +1,4 @@
+// Close all open trades for current symbol
 int start()
 {
   for (int i = OrdersTotal(); i >=0; i--) {
