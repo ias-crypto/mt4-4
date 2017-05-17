@@ -10,6 +10,7 @@ extern double maxLot = 3.0;
 extern bool split = true;
 
 double commissionPerLot = 3.0;
+int orderType = OP_BUY;  
   
 int start(){
 
@@ -22,6 +23,7 @@ int start(){
   if (buyPrice == 0.0)
   {
     buyPrice = Ask;
+    orderType = OP_BUYLIMIT;
   }
   
   double _point = Point;
@@ -65,7 +67,7 @@ int start(){
       
   if ( split )
   {    
-     int ticket = OrderSend(Symbol(),OP_BUYLIMIT,lots,buyPrice,1,stoploss,buyPrice + tp1,"Buy_risk",1,0,Green);
+     int ticket = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp1,"Buy_risk",1,0,Green);
      if(ticket<0)
      {
         Print("OrderSend failed with error #",GetLastError());
@@ -73,7 +75,7 @@ int start(){
      }
   }
   
-  int ticket2 = OrderSend(Symbol(),OP_BUYLIMIT,lots,buyPrice,1,stoploss,buyPrice + tp2,"Buy_risk",1,0,Green);
+  int ticket2 = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp2,"Buy_risk",1,0,Green);
   if(ticket2<0)
   {
     Print("OrderSend failed with error #",GetLastError());
