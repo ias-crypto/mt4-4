@@ -10,7 +10,7 @@ extern double maxLot = 3.0;
 extern bool split = true;
 
 double commissionPerLot = 3.0;
-int orderType = OP_BUY;  
+int orderType = OP_BUYLIMIT;  
   
 int start(){
 
@@ -23,7 +23,7 @@ int start(){
   if (buyPrice == 0.0)
   {
     buyPrice = Ask;
-    orderType = OP_BUYLIMIT;
+    orderType = OP_BUY;
   }
   
   double _point = Point;
