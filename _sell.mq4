@@ -10,7 +10,7 @@ extern double maxLot = 3.0;
 extern bool split = true;
   
 double commissionPerLot = 3.0;
-int orderType = OP_SELL;  
+int orderType = OP_SELLLIMIT;  
   
 int start()
 {
@@ -24,7 +24,7 @@ int start()
   if (sellPrice == 0.0)
   {
     sellPrice = Bid;
-    orderType = OP_SELLLIMIT;
+    orderType = OP_SELL;
   }
 
   double _point = Point;
