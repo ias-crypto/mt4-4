@@ -67,7 +67,7 @@ int start(){
       
   if ( split )
   {    
-     int ticket = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp1,"Buy_risk",1,0,Green);
+     int ticket = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp1,"BuyWithScript",1,0,Green);
      if(ticket<0)
      {
         Print("OrderSend failed with error #",GetLastError());
@@ -75,7 +75,7 @@ int start(){
      }
   }
   
-  int ticket2 = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp2,"Buy_risk",1,0,Green);
+  int ticket2 = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp2,"BuyWithScript",1,0,Green);
   if(ticket2<0)
   {
     Print("OrderSend failed with error #",GetLastError());
