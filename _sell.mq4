@@ -56,13 +56,14 @@ int start()
     lots=maxLot;
   }
   double commission = commissionPerLot*lots;
+  risk = risk - comission;
   if ( split )
   {
-     lots = NormalizeDouble((MathFloor(risk-commission/((stoploss-sellPrice)/_point*tick)/0.01)/2)*0.01,2); 
+     lots = NormalizeDouble((MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)/2)*0.01,2); 
   }
   else
   {
-     lots = NormalizeDouble(MathFloor(risk-commission/((stoploss-sellPrice)/_point*tick)/0.01)*0.01,2); 
+     lots = NormalizeDouble(MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)*0.01,2); 
   }
   
   if ( split )
