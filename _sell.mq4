@@ -59,7 +59,7 @@ int start()
   risk = risk - comission;
   if ( split )
   {
-     lots = NormalizeDouble((MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)/2)*0.01,2); 
+     lots = NormalizeDouble(MathFloor((risk/((stoploss-sellPrice)/_point*tick)/0.01)/2)*0.01,2); 
   }
   else
   {
