@@ -63,7 +63,7 @@ int start(){
   }
   else
   {
-     lots = NormalizeDouble((MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
+     lots = NormalizeDouble(MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
   }
    
       
