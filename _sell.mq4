@@ -56,7 +56,7 @@ int start()
     lots=maxLot;
   }
   double commission = commissionPerLot*lots;
-  risk = risk - comission;
+  risk = risk - commission;
   
   if ( split )
   {
