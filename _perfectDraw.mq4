@@ -517,7 +517,7 @@ void ExtendAndStraighten()
       if ( ObjectType(objName) == OBJ_TREND )
       {
          color lineC = ObjectGet(objName, OBJPROP_COLOR);
-         if ( lineC == line_1_cl || lineC == line_1_cl ) 
+         if ( lineC == line_1_cl || lineC == line_2_cl ) 
          {
             if ( ObjectGet(objName, OBJPROP_STYLE) == STYLE_SOLID )
             {
