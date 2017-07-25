@@ -26,7 +26,10 @@ extern ENUM_LINE_STYLE  line_3_st   =  STYLE_DASH;
 extern int              line_3_wd   =  1;                   
 extern color            line_4_cl   =  clrRed;              
 extern ENUM_LINE_STYLE  line_4_st   =  STYLE_SOLID;         
-extern int              line_4_wd   =  1;                   
+extern int              line_4_wd   =  1;
+extern string           Soundfile   =  "alert.wav";                   
+extern bool             PopupAlert  =  TRUE;
+extern bool             SendtoPhone =  TRUE;
 
 bool              InpSelection      =  false;               
 bool              InpHidden         =  true;                
@@ -44,6 +47,9 @@ int y_rect = 20;
 int y_line = 6;
 
 string obj_name[8] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10"};
+
+int g_newBarTime = 0;
+int rightOffset = 25;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -67,6 +73,7 @@ void OnDeinit(const int reason)
    RectLabelDelete(0,obj_name[7]);
    RectLabelDelete(0,obj_name[8]);
    RectLabelDelete(0,obj_name[9]);
+   ObjectDelete("SpreadObject");
 }
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -84,6 +91,10 @@ int OnCalculate(const int rates_total,
 {
    CreatePanel();
    CreateRect();
+
+   ExtendAndStraighten();
+   HandleAlarms();
+   ShowSpread("SpreadObject");
 
    return(rates_total);
 }
@@ -142,7 +153,7 @@ void OnChartEvent(const int id,
          y = y_coor + 4*y_rect + 5*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);   
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_3_cl,STYLE_SOLID,0,true,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_3_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -156,7 +167,7 @@ void OnChartEvent(const int id,
          y = y_coor + 5*y_rect + 6*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_4_cl,STYLE_SOLID,0,true,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_4_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -170,7 +181,7 @@ void OnChartEvent(const int id,
          y = y_coor + 6*y_rect + 7*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_5_cl,STYLE_SOLID,0,true,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_5_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -394,7 +405,7 @@ bool RectLabelDelete(const long   chart_ID=0,
 
 
 color ChartBackColorGet(const long chart_ID=0)
-  {
+{
 
    long result=clrNONE;
 
@@ -406,7 +417,7 @@ color ChartBackColorGet(const long chart_ID=0)
      }
 
    return((color)result);
-  }
+}
   
   
 bool RectangleCreate(const long            chart_ID=0,        
@@ -483,4 +494,138 @@ bool TrendCreate(const long            chart_ID=0,
    ObjectSetInteger(chart_ID,name,OBJPROP_ZORDER,z_order);        
 
    return(true);
+}
+
+int NewBar() {
+   if (Time[0] != g_newBarTime) {
+      g_newBarTime = Time[0];
+      return (1);
+   }
+   return (0);
+}
+
+void ExtendAndStraighten()
+{
+   for (int i = ObjectsTotal()-1; i >= 0; i--)
+   {
+      string objName=ObjectName(i);
+      if ( (ObjectType(objName) == OBJ_RECTANGLE) && (ObjectGet(objName, OBJPROP_BACK) == true) && ( ObjectGet(objName, OBJPROP_COLOR) == rect_3_cl  || ObjectGet(objName, OBJPROP_COLOR) == rect_4_cl))
+      {
+         ObjectSet(objName, OBJPROP_TIME2, Time[0]+rightOffset*500);
+      }
+       
+      if ( ObjectType(objName) == OBJ_TREND )
+      {
+         color lineC = ObjectGet(objName, OBJPROP_COLOR);
+         if ( lineC == line_1_cl || lineC == line_1_cl ) 
+         {
+            if ( ObjectGet(objName, OBJPROP_STYLE) == STYLE_SOLID )
+            {
+               ObjectSet(objName, OBJPROP_PRICE2, ObjectGet(objName, OBJPROP_PRICE1));
+            }
+         }
+      }
+   }
+}
+
+void HandleAlarms()
+{
+   bool   newBar;
+   string objName;
+   double objPrice;
+   int    alertDist;
+   int    distToPrice;
+   string alertText;
+   
+   if (NewBar()) newBar = TRUE;
+    else newBar = FALSE;
+   
+   for (int i = ObjectsTotal() - 1; i >= 0; i--) 
+   {
+      objName = ObjectName(i);
+      
+      if ( StringSubstr(ObjectDescription(objName), 0, 6) != "Alert_" ) continue; 
+      
+      objPrice = getObjectPrice(objName);
+      if (objPrice != -1.0) 
+      {
+         alertDist = getObjectAlertDist(objName);
+         if (alertDist != -1) 
+         {
+            distToPrice = MathAbs(Bid - objPrice) / Point;
+            if (distToPrice <= alertDist) 
+            {
+               alertText = "Alert triggered: " + Symbol() + "@" + DoubleToStr(Bid, Digits) + "." + "  " + IntegerToString(distToPrice) + " pips from " + objName + ".";
+               if (PopupAlert) Alert(alertText);
+               else Print(alertText);              
+               if (SendtoPhone) SendNotification(alertText);
+               clearObjectAlert(objName);
+            }
+         }
+      }
+   }
+}
+
+void clearObjectAlert(string objName) 
+{
+   ObjectSetText(objName, "");
+   return;
+}
+
+double getObjectPrice(string objName) {
+   double price1;
+   double price2;
+   int time1;
+   int time2;
+   int objType = ObjectType(objName);
+   if (objType == OBJ_TREND) return (ObjectGetValueByShift(objName, 0));
+   if (objType == OBJ_RECTANGLE)
+   {
+      time1 = ObjectGet(objName, OBJPROP_TIME1);
+      time2 = ObjectGet(objName, OBJPROP_TIME2);
+      price1 = ObjectGet(objName, OBJPROP_PRICE1);
+      price2 = ObjectGet(objName, OBJPROP_PRICE2);
+
+      if (Time[0] >= time1 && Time[0] <= time2)
+      {
+         if ( StringSubstr(ObjectDescription(objName), 6, 1) == "H" ) 
+         {
+            if ( price1 > price2 ) return price1;
+            else return price2; 
+         }
+         if ( StringSubstr(ObjectDescription(objName), 6, 1) == "L" ) 
+         {
+            if ( price1 < price2 ) return price1;
+            else return price2; 
+         } 
+      }
+   }
+   
+   return (-1);
+}
+
+int getObjectAlertDist(string objName) {
+   string objDescr = ObjectDescription(objName);
+   string result[];
+   ushort u_sep = StringGetCharacter("_",0);
+   int k = StringSplit(objDescr,u_sep,result); 
+   
+   if ( k == 3 )   return (StrToInteger(result[2]));
+   if ( k == 2 )   return (StrToInteger(result[1]));
+   return (-1);
+}
+
+void ShowSpread(string spreadObj)
+{
+   double point = Point;
+   if (Point == 0.00001) point = 0.0001;
+   else if (Point == 0.001) point = 0.01;
+   
+   string spread = DoubleToStr(NormalizeDouble((Ask - Bid) / point, 2), 1);
+   
+   ObjectCreate(spreadObj, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(spreadObj, "Spread: "+spread, 8, "Arial", Black);
+   ObjectSet(spreadObj, OBJPROP_XDISTANCE, 5);
+   ObjectSet(spreadObj, OBJPROP_YDISTANCE, 5);
+   ObjectSet(spreadObj, OBJPROP_CORNER, 1);
 }
