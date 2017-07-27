@@ -74,6 +74,7 @@ void OnDeinit(const int reason)
    RectLabelDelete(0,obj_name[8]);
    RectLabelDelete(0,obj_name[9]);
    ObjectDelete("SpreadObject");
+   ObjectDelete("ProfitObject");
 }
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -95,6 +96,7 @@ int OnCalculate(const int rates_total,
    ExtendAndStraighten();
    HandleAlarms();
    ShowSpread("SpreadObject");
+   ShowProfit("ProfitObject");
 
    return(rates_total);
 }
@@ -628,4 +630,26 @@ void ShowSpread(string spreadObj)
    ObjectSet(spreadObj, OBJPROP_XDISTANCE, 5);
    ObjectSet(spreadObj, OBJPROP_YDISTANCE, 5);
    ObjectSet(spreadObj, OBJPROP_CORNER, 1);
+}
+
+void ShowProfit(string profitObj)
+{
+
+   double pl = 0.0;
+   for (int i=OrdersTotal()-1; i>=0; i--)
+   {
+      if ( !OrderSelect(i, SELECT_BY_POS, MODE_TRADES) ) continue;
+      if ( OrderSymbol() != Symbol() )  
+         continue;
+      if ( OrderType() == OP_BUY )
+         pl += (((OrderOpenPrice() - OrderStopLoss())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())-OrderCommission()-OrderSwap(); 
+      else if ( OrderType() == OP_SELL )
+         pl += (((OrderStopLoss()-OrderOpenPrice())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())-OrderCommission()-OrderSwap();       
+   }
+
+   ObjectCreate(profitObj, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(profitObj, "Secured Profit: " + DoubleToStr(pl, 2), 8, "Arial", Black);
+   ObjectSet(profitObj, OBJPROP_XDISTANCE, 5);
+   ObjectSet(profitObj, OBJPROP_YDISTANCE, 17);
+   ObjectSet(profitObj, OBJPROP_CORNER, 1);
 }
