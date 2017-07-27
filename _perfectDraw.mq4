@@ -642,9 +642,9 @@ void ShowProfit(string profitObj)
       if ( OrderSymbol() != Symbol() )  
          continue;
       if ( OrderType() == OP_BUY )
-         pl += (((OrderOpenPrice() - OrderStopLoss())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())-OrderCommission()-OrderSwap(); 
+         pl += (((OrderOpenPrice() - OrderStopLoss())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())+OrderCommission()+OrderSwap(); 
       else if ( OrderType() == OP_SELL )
-         pl += (((OrderStopLoss()-OrderOpenPrice())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())-OrderCommission()-OrderSwap();       
+         pl += (((OrderStopLoss()-OrderOpenPrice())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())+OrderCommission()+OrderSwap();       
    }
 
    ObjectCreate(profitObj, OBJ_LABEL, 0, 0, 0);
