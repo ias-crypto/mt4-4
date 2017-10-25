@@ -3,53 +3,95 @@
 //+------------------------------------------------------------------+
 //| Custom indicator Parameters                                      |
 //+------------------------------------------------------------------+
-extern ENUM_BASE_CORNER InpCorner   =  CORNER_LEFT_UPPER;   
-extern color            panl_0_cl   =  clrGainsboro;        
-extern bool             panl_0_st   =  true;                
-extern color            rect_1_cl   =  clrSteelBlue;        
-extern ENUM_LINE_STYLE  rect_1_st   =  STYLE_SOLID;         
-extern int              rect_1_wd   =  1;                   
-extern color            rect_2_cl   =  clrFireBrick;        
-extern ENUM_LINE_STYLE  rect_2_st   =  STYLE_SOLID;         
-extern int              rect_2_wd   =  1;                   
-extern color            rect_3_cl   =  clrLightSteelBlue;   
-extern color            rect_4_cl   =  clrLightSalmon;      
-extern color            rect_5_cl   =  clrYellow;           
-extern color            line_1_cl   =  clrBlue;             
-extern ENUM_LINE_STYLE  line_1_st   =  STYLE_SOLID;         
-extern int              line_1_wd   =  1;                   
-extern color            line_2_cl   =  clrCrimson;          
-extern ENUM_LINE_STYLE  line_2_st   =  STYLE_SOLID;         
-extern int              line_2_wd   =  1;                   
-extern color            line_3_cl   =  clrMediumSeaGreen;   
-extern ENUM_LINE_STYLE  line_3_st   =  STYLE_DASH;          
-extern int              line_3_wd   =  1;                   
-extern color            line_4_cl   =  clrRed;              
-extern ENUM_LINE_STYLE  line_4_st   =  STYLE_SOLID;         
-extern int              line_4_wd   =  1;
-extern string           Soundfile   =  "alert.wav";                   
-extern bool             PopupAlert  =  TRUE;
-extern bool             SendtoPhone =  TRUE;
+extern ENUM_BASE_CORNER InpCorner     =  CORNER_LEFT_UPPER;   
+extern color            panl_0_cl     =  clrGainsboro;        
+extern bool             panl_0_st     =  true; 
+extern int              x_coor        =  10;
+extern int              y_coor        =  20;               
+input string            lb_0          = "";                   // ------------------------------------------------------------
+extern color            rect_1_cl     =  clrSteelBlue;        
+extern ENUM_LINE_STYLE  rect_1_st     =  STYLE_SOLID;         
+extern int              rect_1_wd     =  1;                   
+extern bool             rect_1_fill   =  FALSE;
+extern bool             rect_1_extend =  FALSE;
+input string            lb_1          = "";                   // ------------------------------------------------------------
+extern color            rect_2_cl     =  clrFireBrick;        
+extern ENUM_LINE_STYLE  rect_2_st     =  STYLE_SOLID;         
+extern int              rect_2_wd     =  1;                   
+extern bool             rect_2_fill   =  FALSE;
+extern bool             rect_2_extend =  FALSE;
+input string            lb_2          = "";                   // ------------------------------------------------------------
+extern color            rect_3_cl     =  clrLightSteelBlue;
+extern ENUM_LINE_STYLE  rect_3_st     =  STYLE_SOLID;         
+extern int              rect_3_wd     =  1;  
+extern bool             rect_3_fill   =  TRUE;
+extern bool             rect_3_extend =  TRUE;
+input string            lb_3          = "";                   // ------------------------------------------------------------
+extern color            rect_4_cl     =  clrLightSalmon;   
+extern ENUM_LINE_STYLE  rect_4_st     =  STYLE_SOLID;         
+extern int              rect_4_wd     =  1;    
+extern bool             rect_4_fill   =  TRUE;
+extern bool             rect_4_extend =  TRUE;
+input string            lb_4          = "";                   // ------------------------------------------------------------
+extern color            rect_5_cl     =  clrYellow;           
+extern ENUM_LINE_STYLE  rect_5_st     =  STYLE_SOLID;         
+extern int              rect_5_wd     =  1; 
+extern bool             rect_5_fill   =  TRUE;
+extern bool             rect_5_extend =  FALSE;
+input string            lb_5          = "";                   // ------------------------------------------------------------
+extern color            line_1_cl         =  clrBlue;             
+extern ENUM_LINE_STYLE  line_1_st         =  STYLE_SOLID;         
+extern int              line_1_wd         =  1;
+extern bool             line_1_ray        =  FALSE;
+extern bool             line_1_straighten =  TRUE;
+extern bool             line_1_extend     =  FALSE;
+input string            lb_6              = "";                   // ------------------------------------------------------------
+extern color            line_2_cl         =  clrCrimson;          
+extern ENUM_LINE_STYLE  line_2_st         =  STYLE_SOLID;         
+extern int              line_2_wd         =  1;                   
+extern bool             line_2_ray        =  FALSE;
+extern bool             line_2_straighten =  TRUE;
+extern bool             line_2_extend     =  FALSE;
+input string            lb_7              = "";                   // ------------------------------------------------------------
+extern color            line_3_cl         =  clrMediumSeaGreen;   
+extern ENUM_LINE_STYLE  line_3_st         =  STYLE_DASH;          
+extern int              line_3_wd         =  1; 
+extern bool             line_3_ray        =  FALSE;
+extern bool             line_3_straighten =  FALSE;
+extern bool             line_3_extend     =  FALSE;
+input string            lb_8              = "";                   // ------------------------------------------------------------                  
+extern color            line_4_cl         =  clrRed;              
+extern ENUM_LINE_STYLE  line_4_st         =  STYLE_SOLID;         
+extern int              line_4_wd         =  1;
+extern bool             line_4_ray        =  TRUE;
+extern bool             line_4_straighten =  FALSE;
+extern bool             line_4_extend     =  FALSE;
+input string            lb_9              = "";                   // ------------------------------------------------------------
+extern bool             PopupAlert        =  TRUE;
+extern bool             SendtoPhone       =  TRUE;
+input string            lb_10             = "";                   // Line alert: Alert_XX  ( e.g.: Alert_0 ) 
+input string            lb_11             = "";                   // Rect high alert: Alert_H_XX  ( e.g.: Alert_H_50 )
+input string            lb_12             = "";                   // Rect low alert:  Alert_L_XX  ( e.g.: Alert_L_0 ) 
+input string            lb_13             = "";                   // ------------------------------------------------------------
+extern int              ExtendRightOffset =  25;
+extern double           sizeMultiplier    =  1.0;
 
 bool              InpSelection      =  false;               
 bool              InpHidden         =  true;                
 bool              InpHidden_OBJ     =  false;               
 bool              InpBackRect       =  false;               
 
-extern int x_coor = 10;
-extern int y_coor = 20;
-int x_size = 180;
-int y_size = 30;
-int x_step = 5;
-int y_panl = 20;
-int x_rect = 20;
-int y_rect = 20;
-int y_line = 6;
+int x_size = 180*sizeMultiplier;
+int y_size = 30*sizeMultiplier;
+int x_step = 5*sizeMultiplier;
+int y_panl = 20*sizeMultiplier;
+int x_rect = 20*sizeMultiplier;
+int y_rect = 20*sizeMultiplier;
+int y_line = 6*sizeMultiplier;
 
 string obj_name[8] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10"};
 
-int g_newBarTime = 0;
-int rightOffset = 25;
+
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -95,6 +137,7 @@ int OnCalculate(const int rates_total,
 
    ExtendAndStraighten();
    HandleAlarms();
+
    ShowSpread("SpreadObject");
    ShowProfit("ProfitObject");
 
@@ -127,7 +170,7 @@ void OnChartEvent(const int id,
          y = y_coor + 2*y_rect + 3*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_1_cl,rect_1_st,rect_1_wd,false,false,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_1_cl,rect_1_st,rect_1_wd,false,rect_1_fill,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -141,7 +184,7 @@ void OnChartEvent(const int id,
          y = y_coor + 3*y_rect + 4*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_2_cl,rect_2_st,rect_2_wd,false,false,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_2_cl,rect_2_st,rect_2_wd,false,rect_2_fill,true,InpHidden_OBJ,0);
       }
    }   
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -155,7 +198,7 @@ void OnChartEvent(const int id,
          y = y_coor + 4*y_rect + 5*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);   
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_3_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_3_cl,rect_3_st,rect_3_wd,false,rect_3_fill,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -169,7 +212,7 @@ void OnChartEvent(const int id,
          y = y_coor + 5*y_rect + 6*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_4_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_4_cl,rect_4_st,rect_4_wd,false,rect_4_fill,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -183,7 +226,7 @@ void OnChartEvent(const int id,
          y = y_coor + 6*y_rect + 7*x_step;
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);
          
-         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_5_cl,STYLE_SOLID,0,false,true,true,InpHidden_OBJ,0);
+         RectangleCreate(0,name,0,dt_1,price_1,dt_2,price_2,rect_5_cl,rect_5_st,rect_5_wd,false,rect_5_fill,true,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -195,7 +238,7 @@ void OnChartEvent(const int id,
          ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
-         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_1_cl,line_1_st,line_1_wd,InpBackRect,true,false,false,InpHidden_OBJ,0);
+         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_1_cl,line_1_st,line_1_wd,InpBackRect,true,false,line_1_ray,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -207,7 +250,7 @@ void OnChartEvent(const int id,
          ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
-         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_2_cl,line_2_st,line_2_wd,InpBackRect,true,false,false,InpHidden_OBJ,0);
+         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_2_cl,line_2_st,line_2_wd,InpBackRect,true,false,line_2_ray,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -219,7 +262,7 @@ void OnChartEvent(const int id,
          ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
-         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_3_cl,line_3_st,line_3_wd,InpBackRect,true,false,false,InpHidden_OBJ,0);
+         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_3_cl,line_3_st,line_3_wd,InpBackRect,true,false,line_3_ray,InpHidden_OBJ,0);
       }
    }
    if (id == CHARTEVENT_OBJECT_CLICK) {
@@ -231,7 +274,7 @@ void OnChartEvent(const int id,
          ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
-         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_4_cl,line_4_st,line_4_wd,InpBackRect,true,false,true,InpHidden_OBJ,0);
+         TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_4_cl,line_4_st,line_4_wd,InpBackRect,true,false,line_4_ray,InpHidden_OBJ,0);
       }
    }
 }
@@ -257,13 +300,16 @@ void CreatePanel()
 //+------------------------------------------------------------------+
 void CreateRect()
 {
+   color bckColor;
+
    int x_pn = x_coor + x_step, y_pn = y_coor + x_step;
    if (InpCorner == 1)  x_pn = x_coor + x_size;
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size; y_pn = y_coor + y_rect;}
+   if ( rect_1_fill ) bckColor = rect_1_cl; else bckColor = panl_0_cl;
    
-   if (!RectLabelCreate(0,obj_name[1],0,x_pn,y_pn,x_rect,y_rect,panl_0_cl,BORDER_FLAT,InpCorner,
-        rect_1_cl,rect_1_st,rect_1_wd,InpBackRect,InpSelection,InpHidden,0)) {
+   if (!RectLabelCreate(0,obj_name[1],0,x_pn,y_pn,x_rect,y_rect,bckColor,BORDER_FLAT,InpCorner,
+        rect_1_cl,rect_1_st,rect_1_wd,rect_1_fill,InpSelection,InpHidden,0)) {
       return;
    }   
 
@@ -271,9 +317,10 @@ void CreateRect()
    if (InpCorner == 1)  x_pn = x_coor + x_size - x_step - x_rect;
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size - x_step - x_rect; y_pn = y_coor + y_rect;}
+   if ( rect_2_fill ) bckColor = rect_2_cl; else bckColor = panl_0_cl;
    
-   if (!RectLabelCreate(0,obj_name[2],0,x_pn,y_pn,x_rect,y_rect,panl_0_cl,BORDER_FLAT,InpCorner,
-        rect_2_cl,rect_2_st,rect_2_wd,InpBackRect,InpSelection,InpHidden,0)) {
+   if (!RectLabelCreate(0,obj_name[2],0,x_pn,y_pn,x_rect,y_rect,bckColor,BORDER_FLAT,InpCorner,
+        rect_2_cl,rect_2_st,rect_2_wd,rect_2_fill,InpSelection,InpHidden,0)) {
       return;
    }  
 
@@ -281,9 +328,10 @@ void CreateRect()
    if (InpCorner == 1)  x_pn = x_coor + x_size - 2*x_step - 2*x_rect;
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size - 2*x_step - 2*x_rect; y_pn = y_coor + y_rect;}
+   if ( rect_3_fill ) bckColor = rect_3_cl; else bckColor = panl_0_cl;
    
-   if (!RectLabelCreate(0,obj_name[3],0,x_pn,y_pn,x_rect,y_rect,rect_3_cl,BORDER_FLAT,InpCorner,
-        rect_3_cl,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
+   if (!RectLabelCreate(0,obj_name[3],0,x_pn,y_pn,x_rect,y_rect,bckColor,BORDER_FLAT,InpCorner,
+        rect_3_cl,rect_3_st,rect_3_wd,rect_3_fill,InpSelection,InpHidden,0)) {
       return;
    }  
 
@@ -291,9 +339,10 @@ void CreateRect()
    if (InpCorner == 1)  x_pn = x_coor + x_size - 3*x_step - 3*x_rect;
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size - 3*x_step - 3*x_rect; y_pn = y_coor + y_rect;}
+   if ( rect_4_fill ) bckColor = rect_4_cl; else bckColor = panl_0_cl;
    
-   if (!RectLabelCreate(0,obj_name[4],0,x_pn,y_pn,x_rect,y_rect,rect_4_cl,BORDER_FLAT,InpCorner,
-        rect_4_cl,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
+   if (!RectLabelCreate(0,obj_name[4],0,x_pn,y_pn,x_rect,y_rect,bckColor,BORDER_FLAT,InpCorner,
+        rect_4_cl,rect_4_st,rect_4_wd,rect_4_fill,InpSelection,InpHidden,0)) {
       return;
    }
 
@@ -301,9 +350,10 @@ void CreateRect()
    if (InpCorner == 1)  x_pn = x_coor + x_size - 4*x_step - 4*x_rect;
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size - 4*x_step - 4*x_rect; y_pn = y_coor + y_rect;}
+   if ( rect_5_fill ) bckColor = rect_5_cl; else bckColor = panl_0_cl;
    
-   if (!RectLabelCreate(0,obj_name[5],0,x_pn,y_pn,x_rect,y_rect,rect_5_cl,BORDER_FLAT,InpCorner,
-        rect_5_cl,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
+   if (!RectLabelCreate(0,obj_name[5],0,x_pn,y_pn,x_rect,y_rect,bckColor,BORDER_FLAT,InpCorner,
+        rect_5_cl,rect_5_st,rect_5_wd,rect_5_fill,InpSelection,InpHidden,0)) {
       return;
    }
    
@@ -498,33 +548,41 @@ bool TrendCreate(const long            chart_ID=0,
    return(true);
 }
 
-int NewBar() {
-   if (Time[0] != g_newBarTime) {
-      g_newBarTime = Time[0];
-      return (1);
-   }
-   return (0);
-}
-
 void ExtendAndStraighten()
 {
    for (int i = ObjectsTotal()-1; i >= 0; i--)
    {
       string objName=ObjectName(i);
-      if ( (ObjectType(objName) == OBJ_RECTANGLE) && (ObjectGet(objName, OBJPROP_BACK) == true) && ( ObjectGet(objName, OBJPROP_COLOR) == rect_3_cl  || ObjectGet(objName, OBJPROP_COLOR) == rect_4_cl))
+      if ( ObjectType(objName) == OBJ_RECTANGLE )
       {
-         ObjectSet(objName, OBJPROP_TIME2, Time[0]+rightOffset*500);
+         color objColor = ObjectGet(objName, OBJPROP_COLOR);
+         if ( ( objColor == rect_1_cl && rect_1_extend == TRUE ) ||
+              ( objColor == rect_2_cl && rect_2_extend == TRUE ) ||
+              ( objColor == rect_3_cl && rect_3_extend == TRUE ) ||
+              ( objColor == rect_4_cl && rect_4_extend == TRUE ) ||
+              ( objColor == rect_5_cl && rect_5_extend == TRUE ) )
+         {
+            ObjectSet(objName, OBJPROP_TIME2, Time[0]+ExtendRightOffset*500);
+         }
       }
        
       if ( ObjectType(objName) == OBJ_TREND )
       {
          color lineC = ObjectGet(objName, OBJPROP_COLOR);
-         if ( lineC == line_1_cl || lineC == line_2_cl ) 
+         if ( ( lineC == line_1_cl && line_1_straighten == TRUE ) ||
+              ( lineC == line_2_cl && line_2_straighten == TRUE ) ||
+              ( lineC == line_3_cl && line_3_straighten == TRUE ) ||
+              ( lineC == line_4_cl && line_4_straighten == TRUE ) )
          {
-            if ( ObjectGet(objName, OBJPROP_STYLE) == STYLE_SOLID )
-            {
-               ObjectSet(objName, OBJPROP_PRICE2, ObjectGet(objName, OBJPROP_PRICE1));
-            }
+            ObjectSet(objName, OBJPROP_PRICE2, ObjectGet(objName, OBJPROP_PRICE1));
+         }
+         
+         if ( ( lineC == line_1_cl && line_1_extend == TRUE ) ||
+              ( lineC == line_2_cl && line_2_extend == TRUE ) ||
+              ( lineC == line_3_cl && line_3_extend == TRUE ) ||
+              ( lineC == line_4_cl && line_4_extend == TRUE ) )
+         {
+            ObjectSet(objName, OBJPROP_TIME2, Time[0]+ExtendRightOffset*500);
          }
       }
    }
@@ -532,15 +590,11 @@ void ExtendAndStraighten()
 
 void HandleAlarms()
 {
-   bool   newBar;
    string objName;
    double objPrice;
    int    alertDist;
    int    distToPrice;
    string alertText;
-   
-   if (NewBar()) newBar = TRUE;
-    else newBar = FALSE;
    
    for (int i = ObjectsTotal() - 1; i >= 0; i--) 
    {
