@@ -37,16 +37,16 @@ int start()
   
   if (sellPrice == 0.0)
   {
-    sellPrice = Bid;
-    orderType = OP_SELL;
+     sellPrice = Bid;
+     orderType = OP_SELL;
   }
 
   double _point = Point;
   double tick = MarketInfo(Symbol(), MODE_TICKVALUE);
   if (Digits == 3 || Digits == 5)
   {
-    _point = Point * 10;
-    tick = tick * 10;
+     _point = Point * 10;
+     tick = tick * 10;
   }
   
   double maxLot2=MarketInfo(Symbol(),MODE_MAXLOT);
@@ -67,7 +67,7 @@ int start()
   double lots = NormalizeDouble(MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)*0.01,2);
   if (lots > maxLot)
   {
-    lots=maxLot;
+     lots=maxLot;
   }
   double commission = commissionPerLot*lots;
   risk = risk - commission;
@@ -94,8 +94,8 @@ int start()
   int ticket2 = OrderSend(Symbol(),orderType,lots,sellPrice,1,stoploss,sellPrice - tp2,"SellWithScript",123,0,Red);
   if(ticket2<0)
   {
-    Print("OrderSend failed with error #",GetLastError());
-    return(0);
+     Print("OrderSend failed with error #",GetLastError());
+     return(0);
   }
   return(0);
 }
