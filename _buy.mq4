@@ -4,34 +4,49 @@
 
 extern double buyPrice = 0.0;
 extern double stoploss = 0.0;
-extern double risk = 10.0;
+extern double risk = 20.0;
 extern int RRR = 3;
-extern double maxLot = 3.0;
 extern bool split = true;
+extern double commissionPerLot = 4.0;
+extern double maxLot = 3.0;
 
-double commissionPerLot = 3.0;
 int orderType = OP_BUYLIMIT;  
   
 int start(){
 
   if (stoploss == 0.0)
   {
-    Print("Stoploss not set. Check!");
-    return(0);
+     Print("Stoploss not set. Checking for horizontal line with description 'SL'");
+     for (int i = ObjectsTotal() - 1; i >= 0; i--) 
+     {
+        string objName = ObjectName(i);
+        if ( ObjectDescription(objName) == "SL" && ObjectType(objName) == OBJ_HLINE )
+        {
+           stoploss = ObjectGet(objName, OBJPROP_PRICE1);
+           Print("Setting stoploss to ",stoploss);
+        }
+     }
   }
+  
+  if (stoploss == 0.0)
+  {
+     Print("Stoploss not set. Check!");
+     return(0);
+  }
+  
    
   if (buyPrice == 0.0)
   {
-    buyPrice = Ask;
-    orderType = OP_BUY;
+     buyPrice = Ask;
+     orderType = OP_BUY;
   }
   
   double _point = Point;
   double tick = MarketInfo(Symbol(), MODE_TICKVALUE);
   if (Digits == 3 || Digits == 5)
   {
-    _point = Point * 10;
-    tick = tick * 10;
+     _point = Point * 10;
+     tick = tick * 10;
   } 
   
   double maxLot2=MarketInfo(Symbol(),MODE_MAXLOT);
@@ -52,7 +67,7 @@ int start(){
   double lots = NormalizeDouble(MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
   if (lots > maxLot)
   {
-    lots = maxLot;
+     lots = maxLot;
   }
   double commission = commissionPerLot*lots;
   risk = risk - commission;
@@ -80,10 +95,9 @@ int start(){
   int ticket2 = OrderSend(Symbol(),orderType,lots,buyPrice,1,stoploss,buyPrice + tp2,"BuyWithScript",1,0,Green);
   if(ticket2<0)
   {
-    Print("OrderSend failed with error #",GetLastError());
-    return(0);
+     Print("OrderSend failed with error #",GetLastError());
+     return(0);
   }
   return(0);
-  
   
 }
