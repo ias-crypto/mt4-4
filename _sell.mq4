@@ -17,8 +17,22 @@ int start()
 
   if (stoploss == 0.0)
   {
-    Print("Stoploss not set. Check!");
-    return(0);
+     Print("Stoploss not set. Checking for horizontal line with description 'SL'");
+     for (int i = ObjectsTotal() - 1; i >= 0; i--) 
+     {
+        string objName = ObjectName(i);
+        if ( ObjectDescription(objName) == "SL" && ObjectType(objName) == OBJ_HLINE )
+        {
+           stoploss = ObjectGet(objName, OBJPROP_PRICE1);
+           Print("Setting stoploss to ",stoploss);
+        }
+     }
+  }
+  
+  if (stoploss == 0.0)
+  {
+     Print("Stoploss not set. Check!");
+     return(0);
   }
   
   if (sellPrice == 0.0)
