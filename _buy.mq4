@@ -103,6 +103,8 @@ int start(){
   
 }
 
+// https://fxopen.support/knowledgebase/article/View/213/466/how-to-calculate-ecn-commission
+// https://www.mql5.com/en/forum/61050#comment_1735420
 double calcConversionPrice()
 {
    double rate;
