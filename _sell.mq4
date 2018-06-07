@@ -54,23 +54,23 @@ int start()
   {
      maxLot=maxLot2;
   }
-  
-  
-  
-  double tp1 = ((stoploss-sellPrice)/_point); // setting RRR = 1 for TP1
-  tp1=(tp1+commissionPerLot*Bid/tick)*_point;
-  double tp2 = ((stoploss-sellPrice)/_point)*RRR; // setting RRR for TP2
-  tp2=tp2*_point;
-  
-  
+   
   
   double lots = NormalizeDouble(MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)*0.01,2);
   if (lots > maxLot)
   {
      lots=maxLot;
   }
-  double commission = commissionPerLot*Bid*MarketInfo(Symbol(), MODE_TICKVALUE)*lots;
+  double convRate = calcConversionPrice();
+  double commission = commissionPerLot*convRate*lots;
   risk = risk - commission;
+  
+    
+  double tp1 = ((stoploss-sellPrice)/_point); // setting RRR = 1 for TP1
+  tp1=(tp1+(convRate/tick))*_point;
+  double tp2 = ((stoploss-sellPrice)/_point)*RRR; // setting RRR for TP2
+  tp2=tp2*_point;
+  
   
   if ( split )
   {
@@ -98,4 +98,29 @@ int start()
      return(0);
   }
   return(0);
+
+}
+
+double calcConversionPrice()
+{
+   double rate;
+   string base = StringSubstr(Symbol(),0,3);
+   string quote = StringSubstr(Symbol(),3,3);
+   if ( base == "USD" )
+   {
+      rate = 1.0;
+   }
+   else if ( quote == "USD" )
+   {
+      rate = Bid;
+   }
+   else if ( base == "CAD" || base == "CHF" )
+   {
+      rate = 1/MarketInfo(StringConcatenate("USD",base),MODE_BID);
+   }
+   else
+   {
+      rate = MarketInfo(StringConcatenate(base,"USD"),MODE_BID);
+   }
+   return rate;
 }
