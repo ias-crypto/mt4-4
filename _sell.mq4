@@ -4,12 +4,12 @@
 
 extern double sellPrice = 0.0;
 extern double stoploss = 0.0;
-extern double risk = 10.0;
-extern int RRR = 3;
-extern double maxLot = 3.0;
+extern double risk = 5.0;
+extern int RRR = 5;
 extern bool split = true;
-  
-double commissionPerLot = 3.0;
+extern double commissionPerLot = 4.0;
+extern double maxLot = 3.0;
+
 int orderType = OP_SELLLIMIT;  
   
 int start()
@@ -58,7 +58,7 @@ int start()
   
   
   double tp1 = ((stoploss-sellPrice)/_point); // setting RRR = 1 for TP1
-  tp1=tp1*_point;
+  tp1=(tp1-commissionPerLot*Bid/tick)*_point;
   double tp2 = ((stoploss-sellPrice)/_point)*RRR; // setting RRR for TP2
   tp2=tp2*_point;
   
@@ -69,7 +69,7 @@ int start()
   {
      lots=maxLot;
   }
-  double commission = commissionPerLot*lots;
+  double commission = commissionPerLot*Bid*MarketInfo(Symbol(), MODE_TICKVALUE)*lots;
   risk = risk - commission;
   
   if ( split )
