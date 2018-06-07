@@ -4,8 +4,8 @@
 
 extern double buyPrice = 0.0;
 extern double stoploss = 0.0;
-extern double risk = 20.0;
-extern int RRR = 3;
+extern double risk = 5.0;
+extern int RRR = 5;
 extern bool split = true;
 extern double commissionPerLot = 4.0;
 extern double maxLot = 3.0;
@@ -55,21 +55,17 @@ int start(){
      maxLot=maxLot2;
   }
   
-  
-  
   double tp1 = ((buyPrice-stoploss)/_point); // setting RRR = 1 for TP1
-  tp1=tp1*_point;
+  tp1=(tp1+commissionPerLot*Bid/tick)*_point;
   double tp2 = ((buyPrice-stoploss)/_point)*RRR; // setting RRR for TP2
-  tp2=tp2*_point;
-  
-  
+  tp2=tp2*_point; 
   
   double lots = NormalizeDouble(MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
   if (lots > maxLot)
   {
      lots = maxLot;
   }
-  double commission = commissionPerLot*lots;
+  double commission = commissionPerLot*Bid*MarketInfo(Symbol(), MODE_TICKVALUE)*lots;
   risk = risk - commission;
   
   if ( split )
@@ -80,7 +76,7 @@ int start(){
   {
      lots = NormalizeDouble(MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
   }
-   
+  
       
   if ( split )
   {    
