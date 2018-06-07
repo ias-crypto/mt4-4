@@ -63,11 +63,12 @@ int start(){
   }
   double convRate = calcConversionPrice();
   double commission = commissionPerLot*convRate*lots;
+  Print("Commission: ",commission);
   risk = risk - commission;
 
 
-  double tp1 = ((buyPrice-stoploss)/_point); // setting RRR = 1 for TP1
-  tp1=(tp1+(convRate/tick))*_point;
+  double tp1 = ((buyPrice-stoploss)/_point); // setting RRR = 1 for TP1 + adjust for commission
+  tp1=(tp1+(convRate/MarketInfo(Symbol(), MODE_TICKVALUE)))*_point;
   double tp2 = ((buyPrice-stoploss)/_point)*RRR; // setting RRR for TP2
   tp2=tp2*_point;
   
@@ -102,8 +103,6 @@ int start(){
   
 }
 
-// https://fxopen.support/knowledgebase/article/View/213/466/how-to-calculate-ecn-commission
-// https://www.mql5.com/en/forum/61050#comment_1735420
 double calcConversionPrice()
 {
    double rate;
@@ -112,18 +111,23 @@ double calcConversionPrice()
    if ( base == "USD" )
    {
       rate = 1.0;
+      Print("Ratemode: 1");
    }
    else if ( quote == "USD" )
    {
       rate = Bid;
+      Print("Ratemode: 2");
    }
    else if ( base == "CAD" || base == "CHF" )
    {
       rate = 1/MarketInfo(StringConcatenate("USD",base),MODE_BID);
+      Print("Ratemode: 3");
    }
    else
    {
       rate = MarketInfo(StringConcatenate(base,"USD"),MODE_BID);
+      Print("Ratemode: 4");
    }
+   Print("Rate: ",rate);
    return rate;
 }
