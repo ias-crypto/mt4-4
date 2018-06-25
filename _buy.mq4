@@ -22,8 +22,16 @@ int start(){
         string objName = ObjectName(i);
         if ( ObjectDescription(objName) == "SL" && ObjectType(objName) == OBJ_HLINE )
         {
-           stoploss = ObjectGet(objName, OBJPROP_PRICE1);
-           Print("Setting stoploss to ",stoploss);
+           if ( stoploss == 0.0 )
+           {
+              stoploss = ObjectGet(objName, OBJPROP_PRICE1);
+              Print("Setting stoploss to ",stoploss);
+           }
+           else
+           {
+              Print("More than one horizontal line with description 'SL' found. Exiting");
+              return(0);
+           }
         }
      }
   }
