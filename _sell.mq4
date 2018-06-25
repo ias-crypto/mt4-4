@@ -68,7 +68,7 @@ int start()
   
     
   double tp1 = ((stoploss-sellPrice)/_point); // setting RRR = 1 for TP1 + adjust for commission
-  tp1=(tp1+(convRate/MarketInfo(Symbol(), MODE_TICKVALUE)))*_point;
+  tp1=(tp1+(commissionPerLot*convRate/MarketInfo(Symbol(), MODE_TICKVALUE)))*_point;
   double tp2 = ((stoploss-sellPrice)/_point)*RRR; // setting RRR for TP2
   tp2=tp2*_point;
   
