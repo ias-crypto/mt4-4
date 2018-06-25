@@ -66,6 +66,10 @@ int start()
   Print("Commission: ",commission);
   risk = risk - commission;
   lots = NormalizeDouble(MathFloor(risk/((stoploss-sellPrice)/_point*tick)/0.01)*0.01,2);
+  if (lots > maxLot)
+  {
+     lots=maxLot;
+  }
   commission = commissionPerLot*convRate*lots;
   Print("Commission: ",commission);
     
