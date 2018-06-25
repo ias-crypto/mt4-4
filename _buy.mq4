@@ -4,7 +4,7 @@
 
 extern double buyPrice = 0.0;
 extern double stoploss = 0.0;
-extern double risk = 5.0;
+extern double risk = 10.0;
 extern int RRR = 5;
 extern bool split = true;
 extern double commissionPerLot = 4.0;
@@ -65,10 +65,11 @@ int start(){
   double commission = commissionPerLot*convRate*lots;
   Print("Commission: ",commission);
   risk = risk - commission;
-
+  lots = NormalizeDouble(MathFloor(risk/((buyPrice-stoploss)/_point*tick)/0.01)*0.01,2);
+  commission = commissionPerLot*convRate*lots;
 
   double tp1 = ((buyPrice-stoploss)/_point); // setting RRR = 1 for TP1 + adjust for commission
-  tp1=(tp1+(commissionPerLot*convRate/MarketInfo(Symbol(), MODE_TICKVALUE)))*_point;
+  tp1=(tp1+(commissionPerLot*convRate/tick))*_point;
   double tp2 = ((buyPrice-stoploss)/_point)*RRR; // setting RRR for TP2
   tp2=tp2*_point;
   
