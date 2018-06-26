@@ -39,7 +39,7 @@ extern int              rect_5_wd     =  1;
 extern bool             rect_5_fill   =  TRUE;
 extern bool             rect_5_extend =  FALSE;
 input string            lb_5          = "";                   // ------------------------------------------------------------
-extern color            line_1_cl         =  clrBlue;             
+extern color            line_1_cl         =  clrCornflowerBlue;             
 extern ENUM_LINE_STYLE  line_1_st         =  STYLE_SOLID;         
 extern int              line_1_wd         =  1;
 extern bool             line_1_ray        =  FALSE;
@@ -81,7 +81,7 @@ bool              InpHidden         =  true;
 bool              InpHidden_OBJ     =  false;               
 bool              InpBackRect       =  false;               
 
-int x_size = 180*sizeMultiplier;
+int x_size = 205*sizeMultiplier;
 int y_size = 30*sizeMultiplier;
 int x_step = 5*sizeMultiplier;
 int y_panl = 20*sizeMultiplier;
@@ -89,7 +89,7 @@ int x_rect = 20*sizeMultiplier;
 int y_rect = 20*sizeMultiplier;
 int y_line = 6*sizeMultiplier;
 
-string obj_name[8] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10"};
+string obj_name[11] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10","name_11"};
 
 
 //+------------------------------------------------------------------+
@@ -115,6 +115,7 @@ void OnDeinit(const int reason)
    RectLabelDelete(0,obj_name[7]);
    RectLabelDelete(0,obj_name[8]);
    RectLabelDelete(0,obj_name[9]);
+   RectLabelDelete(0,obj_name[10]);
    ObjectDelete("SpreadObject");
    ObjectDelete("ProfitObject");
 }
@@ -277,6 +278,18 @@ void OnChartEvent(const int id,
          TrendCreate(0,name,0,dt_1,price_1,dt_2,price_2,line_4_cl,line_4_st,line_4_wd,InpBackRect,true,false,line_4_ray,InpHidden_OBJ,0);
       }
    }
+   if (id == CHARTEVENT_OBJECT_CLICK) {
+      string clickedChartObject = sparam;
+      if (clickedChartObject == obj_name[10]) {
+         string name = "name_" + IntegerToString(MathRand() + 100,0,' ');
+         
+         y = y_coor + 6*y_rect + 16*x_step;
+         ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
+         ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
+         
+         HLineCreate(0,name,0,price_1,clrViolet,STYLE_DASHDOT,1,InpBackRect,true,"SL",InpHidden_OBJ,0);
+      }
+   }
 }
 
 //+------------------------------------------------------------------+
@@ -394,6 +407,16 @@ void CreateRect()
    
    if (!RectLabelCreate(0,obj_name[9],0,x_pn,y_pn,x_rect,y_line,line_4_cl,BORDER_FLAT,InpCorner,
         line_4_cl,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
+      return;
+   }
+   
+   x_pn = x_coor + 7*x_rect + 8*x_step; y_pn = y_coor + x_step;
+   if (InpCorner == 1)  x_pn = x_coor + x_size - 7*x_step - 7*x_rect;
+   if (InpCorner == 2)  y_pn = y_coor + y_rect;
+   if (InpCorner == 3) {x_pn = x_coor + x_size - 7*x_step - 7*x_rect; y_pn = y_coor + y_rect;}
+   
+   if (!RectLabelCreate(0,obj_name[10],0,x_pn,y_pn,x_rect,y_line,clrViolet,BORDER_FLAT,InpCorner,
+        clrViolet,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
       return;
    }
 }
@@ -544,6 +567,36 @@ bool TrendCreate(const long            chart_ID=0,
    ObjectSetInteger(chart_ID,name,OBJPROP_RAY_RIGHT,ray_right);   
    ObjectSetInteger(chart_ID,name,OBJPROP_HIDDEN,hidden);         
    ObjectSetInteger(chart_ID,name,OBJPROP_ZORDER,z_order);        
+
+   return(true);
+}
+
+bool HLineCreate(const long            chart_ID=0,        // chart's ID
+                 const string          name="HLine",      // line name
+                 const int             sub_window=0,      // subwindow index
+                 double                price=0,           // line price
+                 const color           clr=clrRed,        // line color
+                 const ENUM_LINE_STYLE style=STYLE_SOLID, // line style
+                 const int             width=1,           // line width
+                 const bool            back=false,        // in the background
+                 const bool            selection=true,    // highlight to move
+                 const string          desc="",
+                 const bool            hidden=true,       // hidden in the object list
+                 const long            z_order=0)         // priority for mouse click
+{
+   ResetLastError();
+   if (ObjectFind(name) == -1)
+      ObjectCreate(chart_ID,name,OBJ_HLINE,sub_window,0,price);
+     
+   ObjectSetInteger(chart_ID,name,OBJPROP_COLOR,clr);
+   ObjectSetInteger(chart_ID,name,OBJPROP_STYLE,style);
+   ObjectSetInteger(chart_ID,name,OBJPROP_WIDTH,width);
+   ObjectSetInteger(chart_ID,name,OBJPROP_BACK,back);
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTABLE,selection);
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTED,selection);
+   ObjectSetString(chart_ID,name,OBJPROP_TEXT,desc);
+   ObjectSetInteger(chart_ID,name,OBJPROP_HIDDEN,hidden);
+   ObjectSetInteger(chart_ID,name,OBJPROP_ZORDER,z_order);
 
    return(true);
 }
