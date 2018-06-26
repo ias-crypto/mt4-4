@@ -89,7 +89,7 @@ int x_rect = 20*sizeMultiplier;
 int y_rect = 20*sizeMultiplier;
 int y_line = 6*sizeMultiplier;
 
-string obj_name[11] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10","name_11"};
+string obj_name[12] = {"name_1","name_2","name_3","name_4","name_5","name_6","name_7","name_8","name_9","name_10","name_11","name_12"};
 
 
 //+------------------------------------------------------------------+
@@ -116,6 +116,7 @@ void OnDeinit(const int reason)
    RectLabelDelete(0,obj_name[8]);
    RectLabelDelete(0,obj_name[9]);
    RectLabelDelete(0,obj_name[10]);
+   RectLabelDelete(0,obj_name[11]);
    ObjectDelete("SpreadObject");
    ObjectDelete("ProfitObject");
 }
@@ -287,6 +288,18 @@ void OnChartEvent(const int id,
          ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
          ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
          
+         HLineCreate(0,name,0,price_1,clrRed,STYLE_SOLID,1,InpBackRect,true,"",InpHidden_OBJ,0);
+      }
+   }
+   if (id == CHARTEVENT_OBJECT_CLICK) {
+      string clickedChartObject = sparam;
+      if (clickedChartObject == obj_name[11]) {
+         string name = "name_" + IntegerToString(MathRand() + 100,0,' ');
+         
+         y = y_coor + 6*y_rect + 18*x_step;
+         ChartXYToTimePrice(0, x_coor + x_step, y, window, dt_1, price_1);
+         ChartXYToTimePrice(0, x_coor + x_size, y, window, dt_2, price_2);         
+         
          HLineCreate(0,name,0,price_1,clrViolet,STYLE_DASHDOT,1,InpBackRect,true,"SL",InpHidden_OBJ,0);
       }
    }
@@ -415,7 +428,17 @@ void CreateRect()
    if (InpCorner == 2)  y_pn = y_coor + y_rect;
    if (InpCorner == 3) {x_pn = x_coor + x_size - 7*x_step - 7*x_rect; y_pn = y_coor + y_rect;}
    
-   if (!RectLabelCreate(0,obj_name[10],0,x_pn,y_pn,x_rect,y_line,clrViolet,BORDER_FLAT,InpCorner,
+   if (!RectLabelCreate(0,obj_name[10],0,x_pn,y_pn,x_rect,y_line,clrRed,BORDER_FLAT,InpCorner,
+        clrRed,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
+      return;
+   }
+   
+   x_pn = x_coor + 7*x_rect + 8*x_step; y_pn = y_coor + y_rect;
+   if (InpCorner == 1)  x_pn = x_coor + x_size - 7*x_step - 7*x_rect;
+   if (InpCorner == 2)  y_pn = y_coor + x_step;
+   if (InpCorner == 3) {x_pn = x_coor + x_size - 7*x_step - 7*x_rect; y_pn = y_coor + x_step;}
+   
+   if (!RectLabelCreate(0,obj_name[11],0,x_pn,y_pn,x_rect,y_line,clrViolet,BORDER_FLAT,InpCorner,
         clrViolet,STYLE_SOLID,0,InpBackRect,InpSelection,InpHidden,0)) {
       return;
    }
