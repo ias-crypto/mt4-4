@@ -143,6 +143,10 @@ double calcConversionPrice()
       rate = MarketInfo(StringConcatenate(base,"USD"),MODE_BID);
       Print("Ratemode: 4");
    }
+   
+   // for gold/silver
+   rate=rate/(100000/MarketInfo(Symbol(),MODE_LOTSIZE));
+   
    Print("Rate: ",rate);
    return rate;
 }
