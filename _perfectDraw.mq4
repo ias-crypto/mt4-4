@@ -1,5 +1,7 @@
 #property strict
 #property indicator_chart_window
+#include <z.mqh>
+
 //+------------------------------------------------------------------+
 //| Custom indicator Parameters                                      |
 //+------------------------------------------------------------------+
@@ -119,6 +121,10 @@ void OnDeinit(const int reason)
    RectLabelDelete(0,obj_name[11]);
    ObjectDelete("SpreadObject");
    ObjectDelete("ProfitObject");
+   ObjectDelete("RprofitObject");
+   ObjectDelete("RObject");
+   ObjectDelete("RValueObject");
+   ObjectDelete("ExpObject");
 }
 //+------------------------------------------------------------------+
 //| Custom indicator iteration function                              |
@@ -141,7 +147,9 @@ int OnCalculate(const int rates_total,
    HandleAlarms();
 
    ShowSpread("SpreadObject");
-   ShowProfit("ProfitObject");
+   ShowProfit("ProfitObject","RprofitObject","RValueObject");
+   ShowR("RObject");
+   ShowExp("ExpObject");
 
    return(rates_total);
 }
@@ -762,24 +770,77 @@ void ShowSpread(string spreadObj)
    ObjectSet(spreadObj, OBJPROP_CORNER, 1);
 }
 
-void ShowProfit(string profitObj)
+void ShowProfit(string profitObj, string rProfitObj, string RvalueObject)
 {
 
    double pl = 0.0;
+   double plFloat = 0.0;
    for (int i=OrdersTotal()-1; i>=0; i--)
    {
       if ( !OrderSelect(i, SELECT_BY_POS, MODE_TRADES) ) continue;
       if ( OrderSymbol() != Symbol() )  
          continue;
-      if ( OrderType() == OP_BUY )
+      if ( OrderType() == OP_BUY ){
          pl += (((OrderOpenPrice() - OrderStopLoss())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())+OrderCommission()+OrderSwap(); 
-      else if ( OrderType() == OP_SELL )
-         pl += (((OrderStopLoss()-OrderOpenPrice())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())+OrderCommission()+OrderSwap();       
+         plFloat += OrderProfit()+OrderCommission()+OrderSwap();
+      }
+      else if ( OrderType() == OP_SELL ){
+         pl += (((OrderStopLoss()-OrderOpenPrice())*-1)*MarketInfo(Symbol(), MODE_TICKVALUE)/Point*OrderLots())+OrderCommission()+OrderSwap(); 
+         plFloat += OrderProfit()+OrderCommission()+OrderSwap();      
+      }
    }
 
+   double r=pl/RISK;
+   double rValue=RISK;
+   double floatR=plFloat/RISK;
+
+   ObjectCreate(RvalueObject, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(RvalueObject, "R value: " + DoubleToStr(rValue, 2), 8, "Arial", Black);
+   ObjectSet(RvalueObject, OBJPROP_XDISTANCE, 5);
+   ObjectSet(RvalueObject, OBJPROP_YDISTANCE, 20);
+   ObjectSet(RvalueObject, OBJPROP_CORNER, 1);
+
+   ObjectCreate(rProfitObj, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(rProfitObj, "Floating R: " + DoubleToStr(floatR, 2), 8, "Arial", Black);
+   ObjectSet(rProfitObj, OBJPROP_XDISTANCE, 5);
+   ObjectSet(rProfitObj, OBJPROP_YDISTANCE, 33);
+   ObjectSet(rProfitObj, OBJPROP_CORNER, 1);
+
    ObjectCreate(profitObj, OBJ_LABEL, 0, 0, 0);
-   ObjectSetText(profitObj, "Secured Profit: " + DoubleToStr(pl, 2), 8, "Arial", Black);
+   ObjectSetText(profitObj, "Secured R: " + DoubleToStr(r, 2), 8, "Arial", Black);
    ObjectSet(profitObj, OBJPROP_XDISTANCE, 5);
-   ObjectSet(profitObj, OBJPROP_YDISTANCE, 17);
+   ObjectSet(profitObj, OBJPROP_YDISTANCE, 46);
    ObjectSet(profitObj, OBJPROP_CORNER, 1);
 }
+
+void ShowR(string RObj)
+{
+
+   double pl = 0.0;
+   for (int i=OrdersHistoryTotal()-1; i>=0; i--)
+   {
+      if ( !OrderSelect(i, SELECT_BY_POS, MODE_HISTORY ) ) continue;
+      if ( OrderType() != OP_BUY && OrderType() != OP_SELL ) continue;
+      pl += OrderProfit()+OrderCommission()+OrderSwap(); 
+   }
+   
+   double r=pl/RISK;
+   
+   ObjectCreate(RObj, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(RObj, "Weekly R: " + DoubleToStr(r, 2), 8, "Arial", Black);
+   ObjectSet(RObj, OBJPROP_XDISTANCE, 5);
+   ObjectSet(RObj, OBJPROP_YDISTANCE, 59);
+   ObjectSet(RObj, OBJPROP_CORNER, 1);
+}
+
+void ShowExp(string EObj)
+{
+   double availExp=calcAvailableExposure();
+   ObjectCreate(EObj, OBJ_LABEL, 0, 0, 0);
+   ObjectSetText(EObj, "Available exposure: " + DoubleToStr(availExp, 2), 8, "Arial", Black);
+   ObjectSet(EObj, OBJPROP_XDISTANCE, 5);
+   ObjectSet(EObj, OBJPROP_YDISTANCE, 72);
+   ObjectSet(EObj, OBJPROP_CORNER, 1);
+}
+
+
