@@ -1,0 +1,40 @@
+//+------------------------------------------------------------------+
+//| script program start function                                    |
+//+------------------------------------------------------------------+
+int start()
+  {
+//----
+   int ticketNo=0;
+   int numOfTrades=0;
+   double lotsToClose;
+
+   for (int i = OrdersTotal(); i >=0; i--) {
+      OrderSelect(i, SELECT_BY_POS, MODE_TRADES);
+      while(IsTradeContextBusy()) Sleep(100);
+      RefreshRates();
+      if ( Symbol() != OrderSymbol() ) continue;
+      numOfTrades = numOfTrades + 1;
+      if ( ticketNo == 0 ) ticketNo=OrderTicket();
+      if ( OrderTicket() < ticketNo ) ticketNo=OrderTicket();   
+   }
+   
+   if ( !OrderSelect(ticketNo, SELECT_BY_TICKET, MODE_TRADES) ) return(-1);
+   if ( numOfTrades == 1 ){
+      // Close half if there's only 1 position
+      lotsToClose = NormalizeDouble(MathCeil((OrderLots()/0.01)/2)*0.01,2);
+   }
+   else{
+      // Close full first position, when there's more than 1
+      lotsToClose=OrderLots();
+   }
+   if (OrderType() == OP_BUY) {
+      OrderClose( ticketNo, lotsToClose, Bid, 1, White);
+   }
+   if (OrderType() == OP_SELL) {
+      OrderClose( ticketNo, lotsToClose, Ask, 1, White);
+   }
+//--
+   return(0);
+  }
+//+------------------------------------------------------------------+
+
