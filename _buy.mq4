@@ -6,6 +6,7 @@
 extern double buyPrice = 0.0;
 extern double stoploss = 0.0;
 extern double risk = RISK;
+extern double uselots = 0.0;
 extern int RRR = 5;
 extern bool split = true;
   
@@ -38,7 +39,15 @@ int start(){
   double commissionPerLot = COMMISSIONPERLOT;
   double convRate = calcConversionPrice();
   
-  double lots=calcLots(buyPrice,stoploss,risk,convRate);
+  double lots;
+  if ( uselots == 0.0 )
+  {  
+    lots=calcLots(buyPrice,stoploss,risk,convRate);
+  }
+  else
+  {
+    lots=uselots;
+  }
   if ( lots <= 0.0 ) 
   {
     MessageBox("Wrong lot number: ", lots);
