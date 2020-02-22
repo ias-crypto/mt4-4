@@ -1,0 +1,367 @@
+#property strict
+#property indicator_chart_window
+
+extern int                  attached = true;
+extern int                     dummy = 1;
+extern int                   ZZdepth = 12;
+extern int               ZZdeviation = 5;
+extern int                ZZbackStep = 3;
+extern bool           showOnlyActive = true;
+extern int                   History = 2000;    
+extern color              lineColor1 = clrBlack;
+extern color              lineColor2 = clrRed;
+extern int      priceProximityToBase = 10;
+extern bool            drawRectangle = true;
+extern ENUM_LINE_STYLE     rectStyle = STYLE_DOT;
+
+double       TrickShort[];
+double       TrickLong[];
+
+double _point;
+
+
+#property indicator_buffers 2
+
+
+string indName="trick-";
+   
+int init()                         
+{
+   IndicatorDigits(Digits);
+   SetIndexBuffer(0,TrickLong);
+   SetIndexLabel(0,"TLong");
+   SetIndexStyle(0,EMPTY,DRAW_NONE,0,EMPTY);
+   SetIndexBuffer(1,TrickShort);
+   SetIndexLabel(1,"TShort");
+   SetIndexStyle(1,EMPTY,DRAW_NONE,0,EMPTY);
+   
+   ArraySetAsSeries(TrickShort,true);
+   ArrayInitialize(TrickShort,EMPTY_VALUE);
+   ArraySetAsSeries(TrickLong,true);
+   ArrayInitialize(TrickLong,EMPTY_VALUE);
+   if ( Digits <= 3 ) _point=0.01;
+   else if ( Digits >=4 ) _point=0.0001;
+   
+   return(0);              
+}
+
+int deinit()
+{
+   RemoveObjects(indName);
+   return(0);   
+}
+
+void RemoveObjects(string pref)
+{   
+	int i;
+	string objname = "";
+
+	for (i = ObjectsTotal(); i >= 0; i--)
+	{
+		objname = ObjectName(i);
+		if (StringFind(objname, pref, 0) > -1) ObjectDelete(objname);
+	}
+	return;
+} // End void RemoveObjects(string Pref)
+  
+
+int start()   
+{
+   int i;
+   double A;
+   double B;
+   double C;
+   double D;
+   int Ai = 0.0;
+   int Bi = 0.0;
+   int Ci = 0.0;
+   int Di = 0;
+   int BiPrev=0;
+                
+   i=History;
+
+   while (i>=0)
+   {
+      A = 0.0;
+      B = 0.0;
+      C = 0.0;
+      D = 0.0;
+      
+      // find 4 consecutive zigzag values starting at index i, and store their index and value in variables
+      find4ZigZagValues(i,A,B,C,D,Ai,Bi,Ci,Di);
+      
+      int setup = zigZagTrickPlayed(A,B,C,D,Di); // 0 -> nothing, -1 -> short, 1 -> long
+      
+      if ( setup != 0 && BiPrev != Bi ){
+         drawEngulfLine(setup,B,Bi,Di);
+         drawEngulfLine(setup,A,Ai,Ci);
+         findAndDrawKink(setup,B,Bi,Ci,Di);
+         findAndDrawKink(setup,A,Ai,Ci,Di);
+      }
+      
+      BiPrev = Bi; // save last and only draw new if it's different -> avoid duplicates
+      
+      i--;
+   }
+   return(0);
+}
+
+void find4ZigZagValues(int i,double& A,double& B,double& C,double& D,int& Ai,int& Bi,int& Ci,int& Di)
+{
+   double zig = 0.0;
+   int j=i;
+   while (A==0.0){
+      zig=iCustom(NULL, 0, "ZigZag", ZZdepth, ZZdeviation, ZZbackStep, 0, j);
+      if ( zig > 0.0 )
+      {
+         if ( D == 0.0 ) 
+         {
+            D=zig;
+            Di=j;
+         }
+         else if ( C == 0.0 ) 
+         {
+            C=zig;
+            Ci=j;
+         }
+         else if ( B == 0.0 ) 
+         {
+            B=zig;
+            Bi=j;
+         }
+         else if ( A == 0.0 ) 
+         {
+            A=zig;
+            Ai=j;
+         }
+      }
+      j++;
+   }
+}
+
+int zigZagTrickPlayed(double A, double B, double C, double D, int Di)
+{
+   int result = 0;  // 0 -> nothing, -1 -> short, 1 -> long
+   
+   // long setup
+   if ( C < A && D > B && C < B ) 
+   {
+      result = 1;
+      // check for active
+      if ( showOnlyActive )
+      {
+         double val;
+         int val_index=iLowest(NULL,0,MODE_LOW,Di,0);
+         if(val_index!=-1) val=Low[val_index];
+         else return 0;
+         if ( val < C ) result=0;
+      }
+   }
+   
+   // short setup
+   if ( A < C && B > D && C > B )
+   {
+      result = -1;
+      // check for active
+      if ( showOnlyActive )
+      {
+         double val;
+         int val_index=iHighest(NULL,0,MODE_HIGH,Di,0);
+         if(val_index!=-1) val=High[val_index];
+         else return 0;
+         if ( val > C ) result=0;
+      }
+   }
+   
+   return result;
+}
+
+void drawEngulfLine(int setup,double B,int Bi,int Di)
+{
+   color lineColor;
+   if ( setup == 1) lineColor=lineColor1;
+      else lineColor=lineColor2;
+   if ( attached )
+   {
+      TrendCreate(0,indName+"tl"+TimeToStr(Time[Bi]),0,Time[Bi],B,Time[Di],B,lineColor,STYLE_SOLID,2,true,false,false,false,false,0);
+   }
+}
+
+void findAndDrawKink(int setup, double line,int linei,int mini,int maxi)
+{
+   if (maxi == 0) return;  // wait for next candle at least
+   
+   color lineColor;
+   int maxiExtended = maxi;
+   int rectLowi = -1;
+   int rectHighi = -1;
+   int rectFinishi=0;
+   double rectLow;
+   double rectHigh;
+   
+   if ( setup == 1 ) // long
+   {
+      lineColor = lineColor1;
+      for (int k = mini; k >= MathMax(maxi,5); k--)
+      {
+         if ( High[k] > line ){ // Candle crossed up the line
+            if ( iLow(NULL,0,iLowest(NULL,0,MODE_LOW,k-maxi,maxi)) > line || k-maxi <= 2 )
+            {
+               maxiExtended=-1;
+               for ( int l=maxi;l>=0;l--)
+               {
+                  if ( High[l] > High[maxi] ){
+                     maxiExtended=l;
+                     break;
+                  }
+               }
+            }
+            if ( maxiExtended != -1 ){
+               rectLowi  = iLowest(NULL,0,MODE_LOW,k-maxiExtended+1,maxiExtended);
+               rectHighi = iHighest(NULL,0,MODE_HIGH,k-rectLowi+1,rectLowi);
+               rectLow  = Low[rectLowi];
+               rectHigh = High[rectHighi];
+               for (int i=maxiExtended;i>0;i--){
+                  if ( Low[i] < rectLow ) 
+                  {
+                     rectFinishi=i;
+                     break;
+                  }
+               }
+               if ( (Bid-rectHigh) <= priceProximityToBase*_point && rectFinishi == 0 ){                  
+                  TrickLong[0] = rectHigh;
+               }
+               break;
+            }
+         }
+      }
+   }
+   else if ( setup == -1 ) //short
+   {
+      lineColor = lineColor2;
+      maxiExtended=maxi;
+      for (int k = mini; k >= MathMax(maxi,5); k--)
+      {
+         if ( Low[k] < line ){ // Candle crossed down the line
+            if ( High[iHighest(NULL,0,MODE_HIGH,k-maxi,maxi)] < line || k-maxi <= 2 )
+            {
+               maxiExtended=-1;
+               for ( int l=maxi;l>=0;l--)
+               {
+                  if ( Low[l] < Low[maxi] ){
+                     maxiExtended=l;
+                     break;
+                  }
+               }
+            }
+            if ( maxiExtended != -1 ){
+               rectHighi = iHighest(NULL,0,MODE_HIGH,k-maxiExtended+1,maxiExtended);
+               rectLowi  = iLowest(NULL,0,MODE_LOW,k-rectHighi+1,rectHighi);
+               rectLow  = Low[rectLowi];
+               rectHigh = High[rectHighi];
+               for (int i=maxiExtended;i>0;i--){
+                  if ( High[i] > rectHigh )
+                  {
+                     rectFinishi=i;
+                     break;
+                  }                
+               }
+               if ( (rectLow - Bid) <= (priceProximityToBase*_point) && rectFinishi == 0 )
+               {
+                  TrickShort[0] = rectLow;
+               }
+               break;
+            }
+         }
+      }
+   }
+   
+   if ( attached && drawRectangle && rectHighi != -1 )
+   {
+      RectangleCreate(0,indName+"rt"+TimeToStr(Time[linei]),0,Time[rectLowi]<Time[rectHighi]?Time[rectLowi]:Time[rectHighi],rectHigh,Time[rectFinishi],rectLow,lineColor,rectStyle,1,false,false,0);
+   }
+   
+}
+
+void myPrint(double line, string x)
+{
+   if ( line == 1.3222 ){
+      Print(x);
+   }
+   
+}
+
+bool TrendCreate(const long            chart_ID=0,        
+                 const string          name="TrendLine",  
+                 const int             sub_window=0,      
+                 datetime              time1=0,           
+                 double                price1=0,          
+                 datetime              time2=0,           
+                 double                price2=0,          
+                 const color           clr=clrRed,        
+                 const ENUM_LINE_STYLE style=STYLE_SOLID, 
+                 const int             width=1,           
+                 const bool            back=false,        
+                 const bool            selection=true,    
+                 const bool            ray_left=false,    
+                 const bool            ray_right=false,   
+                 const bool            hidden=true,       
+                 const long            z_order=0)         
+{  
+   ResetLastError();
+   
+   if (ObjectFind(name) == -1)
+      ObjectCreate(chart_ID,name,OBJ_TREND,sub_window,time1,price1,time2,price2);
+   
+   ObjectSetInteger(chart_ID,name,OBJPROP_COLOR,clr);             
+   ObjectSetInteger(chart_ID,name,OBJPROP_STYLE,style);           
+   ObjectSetInteger(chart_ID,name,OBJPROP_WIDTH,width);           
+   ObjectSetInteger(chart_ID,name,OBJPROP_BACK,back);             
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTABLE,selection);  
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTED,selection);    
+                                                                  
+                                                                  
+   ObjectSetInteger(chart_ID,name,OBJPROP_RAY_LEFT,ray_left);     
+   ObjectSetInteger(chart_ID,name,OBJPROP_RAY_RIGHT,ray_right);   
+   ObjectSetInteger(chart_ID,name,OBJPROP_HIDDEN,hidden);         
+   ObjectSetInteger(chart_ID,name,OBJPROP_ZORDER,z_order);        
+
+   return(true);
+}
+
+bool RectangleCreate(const long            chart_ID=0,        
+                     const string          name="Rectangle",  
+                     const int             sub_window=0,      
+                     datetime              time1=0,           
+                     double                price1=0,          
+                     datetime              time2=0,           
+                     double                price2=0,          
+                     const color           clr=clrRed,        
+                     const ENUM_LINE_STYLE style=STYLE_SOLID, 
+                     const int             width=1,           
+                     const bool            fill=false,        
+                     const bool            back=false,        
+                     const bool            selection=true,    
+                     const bool            hidden=true,       
+                     const long            z_order=0)         
+{
+   
+   ResetLastError();
+   
+   if (ObjectFind(name) == -1)
+      ObjectCreate(chart_ID,name,OBJ_RECTANGLE,sub_window,time1,price1,time2,price2);
+
+   ObjectSetInteger(chart_ID,name,OBJPROP_COLOR,clr);             
+   ObjectSetInteger(chart_ID,name,OBJPROP_STYLE,style);           
+   ObjectSetInteger(chart_ID,name,OBJPROP_WIDTH,width);           
+   ObjectSetInteger(chart_ID,name,OBJPROP_FILL,fill);             
+   ObjectSetInteger(chart_ID,name,OBJPROP_BACK,back);             
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTABLE,selection);  
+   ObjectSetInteger(chart_ID,name,OBJPROP_SELECTED,selection);    
+                                                                  
+                                                                  
+   ObjectSetInteger(chart_ID,name,OBJPROP_HIDDEN,hidden);         
+   ObjectSetInteger(chart_ID,name,OBJPROP_ZORDER,z_order);        
+
+   return(true);
+}
