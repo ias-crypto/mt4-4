@@ -47,7 +47,10 @@ int init()
 
 int deinit()
 {
-   RemoveObjects(indName);
+   if ( attached )
+   {
+      RemoveObjects(indName);
+   }
    return(0);   
 }
 
@@ -77,8 +80,15 @@ int start()
    int Ci = 0.0;
    int Di = 0;
    int BiPrev=0;
-                
+   double zigzag[];             
    i=History;
+   
+   ArrayResize(zigzag,i+1);
+   
+   for (int j=i;j>=0;j--)
+   {
+      zigzag[j]=iCustom(NULL, 0, "ZigZag", ZZdepth, ZZdeviation, ZZbackStep, 0, j);
+   }
 
    while (i>=0)
    {
@@ -88,11 +98,11 @@ int start()
       D = 0.0;
       
       // find 4 consecutive zigzag values starting at index i, and store their index and value in variables
-      find4ZigZagValues(i,A,B,C,D,Ai,Bi,Ci,Di);
+      find4ZigZagValues(i,zigzag,A,B,C,D,Ai,Bi,Ci,Di);
       
       int setup = zigZagTrickPlayed(A,B,C,D,Di); // 0 -> nothing, -1 -> short, 1 -> long
       
-      if ( setup != 0 && BiPrev != Bi ){
+      if ( setup != 0 && BiPrev != Bi && A!=0.0 && D!=0){
          drawEngulfLine(setup,B,Bi,Di);
          drawEngulfLine(setup,A,Ai,Ci);
          findAndDrawKink(setup,B,Bi,Ci,Di);
@@ -106,12 +116,12 @@ int start()
    return(0);
 }
 
-void find4ZigZagValues(int i,double& A,double& B,double& C,double& D,int& Ai,int& Bi,int& Ci,int& Di)
+void find4ZigZagValues(int i,double& zigzag[],double& A,double& B,double& C,double& D,int& Ai,int& Bi,int& Ci,int& Di)
 {
    double zig = 0.0;
    int j=i;
-   while (A==0.0){
-      zig=iCustom(NULL, 0, "ZigZag", ZZdepth, ZZdeviation, ZZbackStep, 0, j);
+   while (A==0.0 && j<History){
+      zig=zigzag[j];
       if ( zig > 0.0 )
       {
          if ( D == 0.0 ) 
@@ -279,14 +289,6 @@ void findAndDrawKink(int setup, double line,int linei,int mini,int maxi)
    if ( attached && drawRectangle && rectHighi != -1 )
    {
       RectangleCreate(0,indName+"rt"+TimeToStr(Time[linei]),0,Time[rectLowi]<Time[rectHighi]?Time[rectLowi]:Time[rectHighi],rectHigh,Time[rectFinishi],rectLow,lineColor,rectStyle,1,false,false,0);
-   }
-   
-}
-
-void myPrint(double line, string x)
-{
-   if ( line == 1.3222 ){
-      Print(x);
    }
    
 }
