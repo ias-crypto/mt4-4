@@ -1,9 +1,7 @@
 #property indicator_chart_window
 
-extern bool		ShowCurrentPairOnly  = false; //	Dispaly only chart Pair
 extern string	PairsToTrade = "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDJPY,USDCHF,USDCAD,XAUUSD,EURAUD,GBPAUD,EURGBP,GBPCHF,EURJPY,GBPJPY,CADJPY,NZDJPY,AUDJPY,CHFJPY,EURCHF,AUDNZD,AUDCAD,AUDCHF,CADCHF,EURCAD,GBPCAD,GBPNZD,EURNZD,NZDCAD,NZDCHF";
 extern string	PeriodsToTrade = "M5,M15,M30,H1,H4"; // Time Frames to display are user defined
-extern int     pipDistance = 100;
 
 extern string	pdi="----Pair display inputs----";
 extern int		FontSize=10;
@@ -11,32 +9,9 @@ extern color	FontColour=Black;
 extern string	Font_Font = "Lucida Sans Unicode";
 extern double	DisplayStarts_X=5;	//we positioning the object from the top right corner of window
 extern double	DisplayStarts_Y=15;
-extern bool		IndicatorInRSIWindow  = false;	// Dispaly the indicator in the RSI Window
-extern string	RSI_WindowName = "RSI(3)";			// RSI Window ShortName
+extern bool    alertOn = true;
+extern string  PairsToIgnoreAlert = "";
 
-//
-//
-//
-//
-//
-
-extern int     alertWhen         = 4;
-extern bool    alertImmediate    = false;
-extern bool    alertsOn          = false;
-extern bool    alertsMessage     = false;
-extern bool    alertsSound       = false;
-extern bool    alertsEmail       = false;
-
-double trendStates[][2];
-
-//
-//
-//
-//
-//
-
-double	ValueChange_1=2.5,
-		ValueChange_2=4.75;
 
 int	symbolCodeSUP=233,
 		symbolCodeSDN=234,
@@ -55,12 +30,11 @@ int		NoOfPeriods;			// Holds the number of periods passed by the user via the in
 string	TradePair[];			//Array to hold the pairs traded by the user
 string	TradePeriod[];			//Array to hold the periods traded by the user
 int		TradePeriodTF[];		//Array to hold the periods traded by the user
+int      NoOfIgnores;
+string   AlertIgnorePairs[];  // Array to hold the pairs that wont raise an alert
 int		TradeTrendSymbol[][6];	//Array to hold the pairs trend symbol
 color 	TradeTrendColor[][6];	//Array to hold the pairs trend color
-bool  	AlertSent[];
 
-string	trend;
-int		OldBars;
 int WindowNo = 0;
 
 //+------------------------------------------------------------------+
@@ -73,54 +47,20 @@ string buff_str ;	// all objects drawn by this indicator will be prefixed with t
 //+------------------------------------------------------------------+
 int init()
 {
-//+------------------------------------------------------------------+ 
-//----
+
 	int j;
 	objPrefix = WindowExpertName();
+
+	//Extract the pairs traded by the user
+	NoOfPairs = StringFindCount(PairsToTrade,",")+1;
+	ArrayResize(TradePair, NoOfPairs);
+	string AddChar = StringSubstr(Symbol(),6,4);
+	StrPairToStringArray(PairsToTrade, TradePair, AddChar);
 	
-	if(IndicatorInRSIWindow)
-	{
-		WindowNo = WindowFind(RSI_WindowName);
-		if(WindowNo < 0)
-		{
-			Alert("RSI_WindowName is Wrong");
-			return(0);
-		}
-		DisplayStarts_X = 5;
-		DisplayStarts_Y = 5;
-	}
-
-	if(!ShowCurrentPairOnly)
-	{
-		//Extract the pairs traded by the user
-		NoOfPairs = StringFindCount(PairsToTrade,",")+1;
-		ArrayResize(TradePair, NoOfPairs);
-		string AddChar = StringSubstr(Symbol(),6,4);
-		StrPairToStringArray(PairsToTrade, TradePair, AddChar);
-	}
-	else
-	{
-		//Fill the array with only chart pair
-		NoOfPairs = 1;
-		ArrayResize(TradePair, NoOfPairs);
-		TradePair[0] = Symbol();
-	}
-
-   //
-   //
-   //
-   //
-   //
-   	
-	  ArrayResize(trendStates,NoOfPairs);
-	        for (int k=0; k<NoOfPairs; k++) trendStates[k][0]=0;
-
-   //
-   //
-   //
-   //
-   //
-   	  
+   NoOfIgnores = StringFindCount(PairsToIgnoreAlert,",")+1;
+	ArrayResize(AlertIgnorePairs, NoOfIgnores);
+	StrPairToStringArray(PairsToIgnoreAlert, AlertIgnorePairs, AddChar);
+  
 	NoOfPeriods = StringFindCount(PeriodsToTrade, ",")+1;
 	ArrayResize(TradePeriod, NoOfPeriods);
 	ArrayResize(TradePeriodTF, NoOfPeriods);
@@ -131,25 +71,20 @@ int init()
 		TradePeriodTF[j] = StrToTF(TradePeriod[j]);	//this is for display Periods from topleft corner
 		//TradePeriodTF[NoOfPeriods-j] = StrToTF(TradePeriod[j]);	//this is for display Periods from topright corner
 	}
-//----	
+
 	ArrayResize(TradeTrendSymbol, NoOfPairs);
 	ArrayInitialize(TradeTrendSymbol, symbolCodeNoSignal);		// Inizialize the array with symbolCodeNoSignal
 	ArrayResize(TradeTrendColor, NoOfPairs);
 	ArrayInitialize(TradeTrendColor, colorCodeNoSignal);		// Inizialize the array with colorCodeNoSignal
-//----
+
 	return(0);
 }// End init()
 
-//+------------------------------------------------------------------+
-//| expert deinitialization function                                 |
-//+------------------------------------------------------------------+
+
 int deinit()
 {
-//----
 	Comment("");   
-//+------------------------------------------------------------------+ 
 	RemoveObjects(objPrefix);
-//----
 	return(0);
 }// End deinit()
 
@@ -180,7 +115,7 @@ int start()
    }
    return(0);
 }//End start()
-//+------------------------------------------------------------------+
+
 
 //-------------------------------------------------------------------+
 // RemoveObjects                                                     |
@@ -197,6 +132,7 @@ void RemoveObjects(string Pref)
 	}
 	return;
 } // End void RemoveObjects(string Pref)
+
 
 //+------------------------------------------------------------------+
 // StringFindCount                                                   |
@@ -323,32 +259,12 @@ void GetPairTrends(int &trend_symbol[][], color &trend_color[][])
 
 }//End GetPairTrends(int &trend_symbol[][], color &trend_color[][])
 
-//+------------------------------------------------------------------+
-//|                                                                  |
-//+------------------------------------------------------------------+
-//
-//
-//
-//
-
-void doAlert(string doWhat)
-{
-   string message;
-
-   if (!alertsOn) return;   
-       message =  StringConcatenate(Symbol()," at ",TimeToStr(TimeLocal(),TIME_SECONDS)," trend display ",doWhat);
-          if (alertsMessage) Alert(message);
-          if (alertsEmail)   SendMail(StringConcatenate(Symbol(),"trend display "),message);
-          if (alertsSound)   PlaySound("alert2.wav");
-}
 
 //+------------------------------------------------------------------+
 //| PrintPairTrends                                                    |
 //+------------------------------------------------------------------+
 void PrintPairTrends()
 {
-	//RemoveObjects(objPrefix);
-	
 	int i, j;
 	
 	//Set Trade Pair
@@ -376,15 +292,23 @@ void PrintPairTrends()
 	//Set Trade Trend
 	for(i=0; i<NoOfPairs; i++)
 	{
+	   bool ignoreAlert = false;
+	   for(int k=0; k<NoOfIgnores; k++){
+         if ( AlertIgnorePairs[k] == TradePair[i] )
+         {
+            ignoreAlert=true;
+         }
+      }
 		for(j=0; j<NoOfPeriods; j++)
 		{
 			buff_str = StringConcatenate(objPrefix, TradePair[i], TradePeriod[j]);
 			if ( ObjectFind(0,buff_str) == 0) { 
 			   color oldColor=color(ObjectGetInteger(0,buff_str,OBJPROP_COLOR));
-			   if ( (oldColor == colorCodeSUP || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSDN){
+			   if ( alertOn && ! ignoreAlert && (oldColor == colorCodeSUP || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSDN){
 			      Alert("Change down: ",TradePair[i], " - ", TradePeriod[j]);
 			   }
-			   if ( (oldColor == colorCodeSDN || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSUP){
+			   if ( alertOn && ! ignoreAlert && (oldColor == colorCodeSDN || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSUP){
+
 			      Alert("Change up: ",TradePair[i], " - ", TradePeriod[j]);
 			   }
 			}
@@ -397,7 +321,6 @@ void PrintPairTrends()
 			ObjectSetText(buff_str,CharToStr(TradeTrendSymbol[i][j]),FontSize,"Wingdings",TradeTrendColor[i][j]);
 		}
 	}
-//----
 	return;
 
 }//End PrintPairTrends()
