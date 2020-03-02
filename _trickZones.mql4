@@ -238,7 +238,9 @@ void findAndDrawKink(int setup, double line,int linei,int mini,int maxi)
                      break;
                   }
                }
-               if ( (Bid-rectHigh) <= priceProximityToBase*_point && rectFinishi == 0 ){                  
+               if ( Bid <= (rectHigh+(priceProximityToBase*_point)) && 
+                     Bid > rectLow &&
+                     rectFinishi == 0 ){                  
                   TrickLong[0] = rectHigh;
                }
                break;
@@ -276,7 +278,9 @@ void findAndDrawKink(int setup, double line,int linei,int mini,int maxi)
                      break;
                   }                
                }
-               if ( (rectLow - Bid) <= (priceProximityToBase*_point) && rectFinishi == 0 )
+               if (Bid >= (rectLow - (priceProximityToBase*_point)) && 
+                     Bid < rectHigh &&
+                     rectFinishi == 0 )
                {
                   TrickShort[0] = rectLow;
                }
