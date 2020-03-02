@@ -15,13 +15,11 @@ extern string  PairsToIgnoreAlert = "";
 
 int	symbolCodeSUP=233,
 		symbolCodeSDN=234,
-		symbolCodeWUP=236,
-		symbolCodeWDN=238,
+		symbolCodeUD=232,
 		symbolCodeNoSignal=159;
 color	colorCodeSUP=LimeGreen,
 		colorCodeSDN=Red,
-		colorCodeWUP=DeepSkyBlue,
-		colorCodeWDN=Magenta,
+		colorCodeUD=DeepSkyBlue,
 		colorCodeNoSignal=Gold;
 
 //Pair extraction
@@ -242,13 +240,20 @@ void GetPairTrends(int &trend_symbol[][], color &trend_color[][])
 			rectLong  = iCustom(TradePair[i], TradePeriodTF[j],"_trickZones",false,x,0,0);
 			rectShort = iCustom(TradePair[i], TradePeriodTF[j],"_trickZones",false,x,1,0);
 
-			if ( rectLong != EMPTY_VALUE ){
+         
+         if ( rectLong != EMPTY_VALUE && rectShort != EMPTY_VALUE ){
+
+				trend_symbol[i][j] = symbolCodeUD;
+				trend_color[i][j] = colorCodeUD;
+				signalsUp++;
+			} 
+			else if ( rectLong != EMPTY_VALUE ){
 
 				trend_symbol[i][j] = symbolCodeSUP;
 				trend_color[i][j] = colorCodeSUP;
 				signalsUp++;
 			} 
-			if ( rectShort != EMPTY_VALUE ){
+			else if ( rectShort != EMPTY_VALUE ){
 				trend_symbol[i][j] = symbolCodeSDN;
 				trend_color[i][j] = colorCodeSDN;
 				signalsDown++;
@@ -304,10 +309,10 @@ void PrintPairTrends()
 			buff_str = StringConcatenate(objPrefix, TradePair[i], TradePeriod[j]);
 			if ( ObjectFind(0,buff_str) == 0) { 
 			   color oldColor=color(ObjectGetInteger(0,buff_str,OBJPROP_COLOR));
-			   if ( alertOn && ! ignoreAlert && (oldColor == colorCodeSUP || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSDN){
+			   if ( alertOn && ! ignoreAlert && (oldColor != colorCodeSDN) && TradeTrendColor[i][j] == colorCodeSDN){
 			      Alert("Change down: ",TradePair[i], " - ", TradePeriod[j]);
 			   }
-			   if ( alertOn && ! ignoreAlert && (oldColor == colorCodeSDN || oldColor == colorCodeNoSignal) && TradeTrendColor[i][j] == colorCodeSUP){
+			   if ( alertOn && ! ignoreAlert && (oldColor != colorCodeSUP) && TradeTrendColor[i][j] == colorCodeSUP){
 
 			      Alert("Change up: ",TradePair[i], " - ", TradePeriod[j]);
 			   }
