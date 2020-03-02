@@ -1,7 +1,7 @@
 #property indicator_chart_window
 
 extern string	PairsToTrade = "EURUSD,GBPUSD,AUDUSD,NZDUSD,USDJPY,USDCHF,USDCAD,XAUUSD,EURAUD,GBPAUD,EURGBP,GBPCHF,EURJPY,GBPJPY,CADJPY,NZDJPY,AUDJPY,CHFJPY,EURCHF,AUDNZD,AUDCAD,AUDCHF,CADCHF,EURCAD,GBPCAD,GBPNZD,EURNZD,NZDCAD,NZDCHF";
-extern string	PeriodsToTrade = "M5,M15,M30,H1,H4"; // Time Frames to display are user defined
+extern string	PeriodsToTrade = "M5,M15,M30,H1,H4,D1"; // Time Frames to display are user defined
 
 extern string	pdi="----Pair display inputs----";
 extern int		FontSize=10;
